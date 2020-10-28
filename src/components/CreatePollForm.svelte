@@ -1,5 +1,7 @@
 <script>
+   import { fade } from "svelte/transition";
    import { createEventDispatcher } from "svelte";
+   import PollStore from "../stores/PollStore.js";
    import Button from "../shared/Button.svelte";
 
    const dispatch = createEventDispatcher();
@@ -8,6 +10,9 @@
       question: "",
       answerA: "",
       answerB: "",
+      votesA: 0,
+      votesB: 0,
+      id: Math.random(),
    };
 
    let valid = false;
@@ -47,8 +52,10 @@
 
       // add new poll
       if (valid === true) {
-         let poll = { ...fields, votesA: 0, votesB: 0, id: Math.random() };
-         dispatch("add", poll);
+         PollStore.update((currentData) => {
+            return [fields, ...currentData];
+         });
+         dispatch("add");
       }
    }
 </script>
@@ -82,7 +89,7 @@
    }
 </style>
 
-<form on:submit|preventDefault={submitHandler} autocomplete="off">
+<form on:submit|preventDefault={submitHandler} in:fade autocomplete="off">
    <div class="form-field">
       <label for="question">Poll Question</label>
       <input type="text" id="question" bind:value={fields.question} />
